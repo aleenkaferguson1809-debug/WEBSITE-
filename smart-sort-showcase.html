@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Smart Waste Sorting &amp; Monitoring System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1F2E;
+    --navy-light:#16314A;
+    --paper:#EDEAE2;
+    --paper-dim:#E2DECF;
+    --yellow:#E8B33D;
+    --teal:#3F9C8C;
+    --red:#C2542E;
+    --line: rgba(237,234,226,0.16);
+    --line-dark: rgba(15,31,46,0.14);
+    --display: 'Big Shoulders Display', sans-serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --accentfont: 'Space Grotesk', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--navy);
+    font-family:var(--sans);
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+  }
+
+  a{color:inherit;}
+  img,svg{display:block; max-width:100%;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  @media (max-width:720px){ .wrap{padding:0 20px;} }
+
+  /* ---------- Top bin-tag nav ---------- */
+  header.topnav{
+    position:sticky; top:0; z-index:50;
+    background:var(--navy);
+    border-bottom:3px solid var(--yellow);
+  }
+  .topnav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px;
+    max-width:1180px; margin:0 auto;
+  }
+  .brandtag{
+    display:flex; align-items:center; gap:10px;
+    color:var(--paper);
+    font-family:var(--accentfont);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.02em;
+  }
+  .brandtag .dot{width:9px;height:9px;border-radius:50%;background:var(--yellow); flex:none;}
+  nav.toplinks{display:flex; gap:26px;}
+  nav.toplinks a{
+    color:rgba(237,234,226,0.7);
+    font-family:var(--accentfont);
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    transition:color .15s;
+  }
+  nav.toplinks a:hover, nav.toplinks a:focus-visible{color:var(--yellow);}
+  @media (max-width:720px){ nav.toplinks{display:none;} }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:var(--navy);
+    color:var(--paper);
+    position:relative;
+    padding:84px 0 0;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .hero-inner{position:relative; z-index:2; max-width:1180px; margin:0 auto; padding:0 32px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--yellow);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:28px;
+  }
+  .eyebrow .seg{opacity:0.55; color:var(--paper);}
+  h1.title{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(40px, 7vw, 84px);
+    line-height:0.98;
+    letter-spacing:-0.01em;
+    margin:0 0 22px;
+    text-transform:uppercase;
+  }
+  h1.title .accent{color:var(--yellow);}
+  .hero-sub{
+    font-size:18px;
+    line-height:1.6;
+    color:rgba(237,234,226,0.82);
+    max-width:560px;
+    margin:0 0 40px;
+  }
+  .hero-cta-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:64px;}
+  .btn{
+    font-family:var(--accentfont);
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.02em;
+    padding:14px 24px;
+    border-radius:3px;
+    cursor:pointer;
+    border:2px solid transparent;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-primary{background:var(--yellow); color:var(--navy);}
+  .btn-primary:hover{background:#f0c25e;}
+  .btn-ghost{border-color:rgba(237,234,226,0.35); color:var(--paper); background:transparent;}
+  .btn-ghost:hover{border-color:var(--paper);}
+
+  /* hero bin visual strip */
+  .hero-strip{
+    position:relative; z-index:2;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    border-top:1px solid var(--line);
+  }
+  .hero-strip > div{
+    padding:22px 32px 26px;
+    border-right:1px solid var(--line);
+  }
+  .hero-strip > div:last-child{border-right:none;}
+  .strip-num{font-family:var(--mono); font-size:12px; color:var(--yellow); margin-bottom:6px;}
+  .strip-label{font-family:var(--accentfont); font-weight:600; font-size:14.5px; color:var(--paper);}
+  @media (max-width:720px){
+    .hero-strip{grid-template-columns:1fr;}
+    .hero-strip > div{border-right:none; border-bottom:1px solid var(--line);}
+  }
+
+  /* ---------- Section scaffolding ---------- */
+  section{padding:96px 0;}
+  @media (max-width:720px){ section{padding:64px 0;} }
+  .section-head{margin-bottom:52px; max-width:680px;}
+  .kicker{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-bottom:14px;
+    display:block;
+  }
+  h2.h-title{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(30px, 4vw, 46px);
+    line-height:1.04;
+    text-transform:uppercase;
+    margin:0 0 16px;
+    color:var(--navy);
+  }
+  .section-head p{font-size:16.5px; line-height:1.65; color:rgba(15,31,46,0.72); margin:0;}
+
+  .divider{
+    height:1px; background:var(--line-dark); border:none; margin:0;
+  }
+
+  /* ---------- Live demo (signature element) ---------- */
+  .demo-section{background:var(--navy); color:var(--paper);}
+  .demo-section .kicker{color:var(--yellow);}
+  .demo-section h2.h-title{color:var(--paper);}
+  .demo-section .section-head p{color:rgba(237,234,226,0.72);}
+
+  .demo-frame{
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--navy-light);
+    padding:36px;
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:40px;
+    align-items:center;
+  }
+  @media (max-width:880px){ .demo-frame{grid-template-columns:1fr; padding:24px;} }
+
+  .demo-choose-label{
+    font-family:var(--accentfont); font-weight:600; font-size:13px;
+    letter-spacing:0.04em; text-transform:uppercase;
+    color:rgba(237,234,226,0.6); margin-bottom:14px;
+  }
+  .item-buttons{display:flex; gap:14px; margin-bottom:28px;}
+  .item-btn{
+    flex:1;
+    background:rgba(237,234,226,0.05);
+    border:1.5px solid rgba(237,234,226,0.2);
+    border-radius:5px;
+    padding:18px 12px;
+    color:var(--paper);
+    cursor:pointer;
+    font-family:var(--accentfont);
+    font-weight:600;
+    font-size:14px;
+    text-align:center;
+    transition:border-color .15s, background .15s;
+  }
+  .item-btn:hover, .item-btn:focus-visible{border-color:var(--yellow); background:rgba(232,179,61,0.08);}
+  .item-btn .icon{font-size:28px; display:block; margin-bottom:8px;}
+  .item-btn[disabled]{opacity:0.4; cursor:not-allowed;}
+
+  .readout{
+    font-family:var(--mono);
+    font-size:13px;
+    background:rgba(0,0,0,0.25);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px 18px;
+    min-height:96px;
+    line-height:1.7;
+    color:#9fe6c9;
+  }
+  .readout .ln{opacity:0; transform:translateY(4px); transition:opacity .25s, transform .25s;}
+  .readout .ln.show{opacity:1; transform:translateY(0);}
+  .readout .ln .tag{color:var(--yellow);}
+  .readout .cursor{display:inline-block; width:7px; height:13px; background:#9fe6c9; vertical-align:-2px; animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .machine-stage{
+    background:var(--paper);
+    border-radius:5px;
+    padding:20px;
+    position:relative;
+  }
+  .machine-stage svg{width:100%; height:auto; display:block;}
+  .counter-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:16px;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--navy);
+  }
+  .counter-box{
+    background:var(--navy);
+    color:#9fe6c9;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:22px;
+    padding:6px 14px;
+    border-radius:3px;
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- Pipeline diagram ---------- */
+  .pipeline{
+    display:grid;
+    grid-template-columns:repeat(8, 1fr);
+    gap:0;
+    border:1px solid var(--line-dark);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  @media (max-width:980px){ .pipeline{grid-template-columns:repeat(4,1fr);} }
+  @media (max-width:600px){ .pipeline{grid-template-columns:1fr;} }
+  .pstep{
+    background:var(--paper);
+    border-right:1px solid var(--line-dark);
+    border-bottom:1px solid var(--line-dark);
+    padding:22px 16px 24px;
+    position:relative;
+    min-height:178px;
+  }
+  .pipeline .pstep:nth-child(8n){border-right:none;}
+  @media (max-width:980px){ .pipeline .pstep:nth-child(4n){border-right:none;} .pipeline .pstep:nth-child(8n){border-right:1px solid var(--line-dark);} }
+  @media (max-width:600px){ .pipeline .pstep{border-right:none !important;} }
+  .pstep .pnum{
+    font-family:var(--mono); font-size:11px; color:var(--red); margin-bottom:10px; display:block;
+  }
+  .pstep .picon{font-size:22px; margin-bottom:10px; display:block;}
+  .pstep .ptitle{font-family:var(--accentfont); font-weight:700; font-size:13.5px; margin-bottom:6px; line-height:1.25;}
+  .pstep .pdesc{font-size:12.3px; line-height:1.5; color:rgba(15,31,46,0.68);}
+
+  /* ---------- Architecture two-bin diagram ---------- */
+  .arch-grid{display:grid; grid-template-columns:1.4fr 1fr; gap:48px; align-items:start;}
+  @media (max-width:880px){ .arch-grid{grid-template-columns:1fr;} }
+
+  .device-card{
+    border:1px solid var(--line-dark);
+    border-radius:6px;
+    padding:24px;
+    background:#fff;
+    margin-bottom:18px;
+  }
+  .device-card .dc-head{
+    display:flex; align-items:center; gap:12px; margin-bottom:12px;
+  }
+  .dc-chip{
+    font-family:var(--mono); font-size:11px; font-weight:700;
+    padding:3px 9px; border-radius:3px; letter-spacing:0.04em;
+  }
+  .dc-chip.teal{background:rgba(63,156,140,0.15); color:var(--teal);}
+  .dc-chip.red{background:rgba(194,84,46,0.15); color:var(--red);}
+  .dc-chip.yellow{background:rgba(232,179,61,0.2); color:#8a651c;}
+  .device-card h4{font-family:var(--accentfont); font-size:17px; margin:0; font-weight:700;}
+  .device-card p{font-size:14.5px; line-height:1.6; color:rgba(15,31,46,0.72); margin:0 0 10px;}
+  .device-card ul{margin:0; padding-left:18px; font-size:14px; line-height:1.7; color:rgba(15,31,46,0.72);}
+
+  .signal-line{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:12px; color:var(--navy);
+    margin:14px 0; padding-left:2px;
+  }
+  .signal-line .arrow{color:var(--red);}
+
+  /* ---------- Bin compartments visual ---------- */
+  .bins-visual{
+    border:1px solid var(--line-dark); border-radius:6px; padding:28px;
+    background:#fff;
+  }
+
+  /* ---------- Innovation/criteria cards ---------- */
+  .criteria-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;}
+  @media (max-width:720px){ .criteria-grid{grid-template-columns:1fr;} }
+  .crit-card{
+    border:1px solid var(--line-dark);
+    border-radius:6px;
+    padding:26px;
+    background:#fff;
+    position:relative;
+  }
+  .crit-card .ck{font-family:var(--mono); font-size:11.5px; color:var(--teal); letter-spacing:0.06em; margin-bottom:10px; display:block;}
+  .crit-card h4{font-family:var(--accentfont); font-weight:700; font-size:18px; margin:0 0 10px;}
+  .crit-card p{font-size:14.5px; line-height:1.65; color:rgba(15,31,46,0.72); margin:0;}
+
+  /* ---------- Future roadmap ---------- */
+  .future-section{background:var(--paper-dim);}
+  .roadmap{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:880px){ .roadmap{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .roadmap{grid-template-columns:1fr;} }
+  .road-card{
+    background:#fff; border:1px solid var(--line-dark); border-radius:6px;
+    padding:20px; cursor:default;
+  }
+  .road-card .ricon{font-size:22px; margin-bottom:10px;}
+  .road-card h5{font-family:var(--accentfont); font-weight:700; font-size:14.5px; margin:0 0 6px;}
+  .road-card p{font-size:13px; line-height:1.55; color:rgba(15,31,46,0.68); margin:0;}
+  .road-card .rstatus{
+    display:inline-block; margin-top:10px;
+    font-family:var(--mono); font-size:10px; letter-spacing:0.05em; text-transform:uppercase;
+    padding:2px 8px; border-radius:3px;
+  }
+  .rstatus.planned{background:rgba(232,179,61,0.2); color:#8a651c;}
+
+  /* ---------- Tech stack tags ---------- */
+  .stack-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .stack-tag{
+    font-family:var(--mono); font-size:12.5px;
+    border:1px solid var(--line-dark); border-radius:20px;
+    padding:8px 16px; background:#fff;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:var(--navy); color:rgba(237,234,226,0.65);
+    padding:48px 0 36px;
+  }
+  footer .foot-inner{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px;}
+  footer .foot-brand{font-family:var(--accentfont); font-weight:700; color:var(--paper); font-size:15px;}
+  footer .foot-note{font-family:var(--mono); font-size:11.5px; max-width:420px; line-height:1.6;}
+
+  /* placeholder media frame */
+  .media-placeholder{
+    border:1.5px dashed var(--line-dark);
+    border-radius:6px;
+    background:rgba(15,31,46,0.03);
+    padding:40px 20px;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:rgba(15,31,46,0.5);
+  }
+
+  .fade-up{opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease;}
+  .fade-up.in{opacity:1; transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <div class="brandtag"><span class="dot"></span>SMART&nbsp;SORT // PROTOTYPE</div>
+    <nav class="toplinks">
+      <a href="#demo">Live Demo</a>
+      <a href="#how">How It Works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#innovation">Why It Matters</a>
+      <a href="#future">Roadmap</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">YOUNG ICT EXPLORERS AUSTRALIA <span class="seg">/</span> CATEGORY: SUSTAINABILITY</div>
+    <h1 class="title">It doesn't tell you<br>where to bin it.<br><span class="accent">It bins it for you.</span></h1>
+    <p class="hero-sub">An AI camera, a microbit-controlled servo, and a pinball-paddle chute turn an ordinary school bin into a system that sees what you're holding, decides where it belongs, and physically sends it there — then counts it.</p>
+    <div class="hero-cta-row">
+      <a href="#demo" class="btn btn-primary">Try the simulated sort →</a>
+      <a href="#how" class="btn btn-ghost">See how it works</a>
+    </div>
+  </div>
+  <div class="hero-strip">
+    <div><div class="strip-num">INPUT</div><div class="strip-label">Camera + Teachable Machine AI</div></div>
+    <div><div class="strip-num">ACTION</div><div class="strip-label">microbit + servo-driven paddle</div></div>
+    <div><div class="strip-num">OUTPUT</div><div class="strip-label">Wireless counter dashboard</div></div>
+  </div>
+</section>
+
+<!-- ============ LIVE DEMO ============ -->
+<section class="demo-section" id="demo">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Signature Interaction</span>
+      <h2 class="h-title">Watch the sort happen</h2>
+      <p>This is a simulation of the actual decision pipeline running on the prototype. Pick an item below — the same way the camera would see it — and follow it through AI detection, the microbit command, and the paddle swinging it into the correct bin.</p>
+    </div>
+
+    <div class="demo-frame">
+      <div>
+        <div class="demo-choose-label">Step 1 — Place an item in the scanner</div>
+        <div class="item-buttons">
+          <button class="item-btn" id="btn-bottle" onclick="runDemo('BOTTLE')"><span class="icon">🧴</span>Plastic Bottle</button>
+          <button class="item-btn" id="btn-chips" onclick="runDemo('CHIPS')"><span class="icon">🥡</span>Chip Packet</button>
+        </div>
+        <div class="demo-choose-label">Step 2 — System readout</div>
+        <div class="readout" id="readout">
+          <div class="ln show">&gt; system idle. waiting for object<span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <div class="machine-stage">
+        <svg viewBox="0 0 320 260" id="machine-svg">
+          <!-- chute -->
+          <polygon points="120,18 200,18 230,90 90,90" fill="none" stroke="#0F1F2E" stroke-width="2.5"/>
+          <text x="160" y="14" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#0F1F2E" opacity="0.55">SCAN ZONE</text>
+          <!-- falling item -->
+          <g id="fall-item" opacity="0" transform="translate(160,40)">
+            <circle r="11" fill="#0F1F2E" opacity="0.85"/>
+            <text id="fall-emoji" x="0" y="5" text-anchor="middle" font-size="14">🧴</text>
+          </g>
+          <!-- paddle pivot -->
+          <line x1="160" y1="90" x2="160" y2="92" stroke="#0F1F2E"/>
+          <g id="paddle" transform="translate(160,92) rotate(0)">
+            <rect x="-46" y="-3" width="92" height="6" rx="3" fill="#0F1F2E"/>
+            <circle cx="0" cy="0" r="4" fill="#E8B33D"/>
+          </g>
+          <!-- chutes to bins -->
+          <polygon points="60,92 130,92 60,160 30,160" fill="none" stroke="#3F9C8C" stroke-width="2"/>
+          <polygon points="260,92 190,92 260,160 290,160" fill="none" stroke="#C2542E" stroke-width="2"/>
+          <!-- bins -->
+          <rect x="20" y="160" width="90" height="74" rx="4" fill="#3F9C8C" opacity="0.12" stroke="#3F9C8C" stroke-width="2"/>
+          <text x="65" y="184" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="11" fill="#1f6e60">RECYCLE</text>
+          <rect x="210" y="160" width="90" height="74" rx="4" fill="#C2542E" opacity="0.10" stroke="#C2542E" stroke-width="2"/>
+          <text x="255" y="184" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="11" fill="#8f3a1f">RUBBISH</text>
+          <!-- counters under bins -->
+          <text x="65" y="222" text-anchor="middle" font-family="JetBrains Mono" font-size="20" font-weight="700" fill="#1f6e60" id="count-recycle">0</text>
+          <text x="255" y="222" text-anchor="middle" font-family="JetBrains Mono" font-size="20" font-weight="700" fill="#8f3a1f" id="count-rubbish">0</text>
+        </svg>
+        <div class="counter-row">
+          <span>TOTAL ITEMS SORTED</span>
+          <span class="counter-box" id="total-counter">0000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS PIPELINE ============ -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">The Process</span>
+      <h2 class="h-title">From hand to bin in eight steps</h2>
+      <p>Every sort runs through three connected systems — a website doing the seeing and thinking, a microbit doing the moving, and a second microbit doing the counting. Here's the full chain, in the order it actually fires.</p>
+    </div>
+
+    <div class="pipeline">
+      <div class="pstep fade-up">
+        <span class="pnum">01</span>
+        <span class="picon">📷</span>
+        <div class="ptitle">Camera scans the object</div>
+        <div class="pdesc">A live feed captures the item the moment it's placed in the entry point.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">02</span>
+        <span class="picon">🧠</span>
+        <div class="ptitle">AI classifies it</div>
+        <div class="pdesc">A Teachable Machine model decides: plastic bottle, or chip packet — with a live confidence score.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">03</span>
+        <span class="picon">🌐</span>
+        <div class="ptitle">Website confirms the result</div>
+        <div class="pdesc">The result has to hold steady above a confidence threshold first, so a flickering guess can't trigger the sort.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">04</span>
+        <span class="picon">🔌</span>
+        <div class="ptitle">Command sent over USB</div>
+        <div class="pdesc">The GitHub-hosted site sends "BOTTLE" or "CHIPS" to microbit&nbsp;1 via Web Serial.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">05</span>
+        <span class="picon">⚙️</span>
+        <div class="ptitle">Servo swings the paddle</div>
+        <div class="pdesc">microbit 1 drives a GeekServo motor, angling the paddle toward the correct chute.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">06</span>
+        <span class="picon">↩️</span>
+        <div class="ptitle">Paddle resets to centre</div>
+        <div class="pdesc">Gravity does the rest, dropping the item into its bin while the paddle re-centres for the next one.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">07</span>
+        <span class="picon">📡</span>
+        <div class="ptitle">Wireless message fires</div>
+        <div class="pdesc">microbit 1 radios "RECYCLE" or "RUBBISH" to microbit 2 — no wires between the two units.</div>
+      </div>
+      <div class="pstep fade-up">
+        <span class="pnum">08</span>
+        <span class="picon">🔢</span>
+        <div class="ptitle">Counter ticks up</div>
+        <div class="pdesc">microbit 2's four-digit display increases the running total — a live usage record for the school.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Under the Hood</span>
+      <h2 class="h-title">Three connected devices, one decision</h2>
+      <p>The system is really three small computers talking to each other over three different connections — USB serial, microbit radio, and the chute itself. No single part does everything; each one hands off to the next.</p>
+    </div>
+
+    <div class="arch-grid">
+      <div>
+        <div class="device-card fade-up">
+          <div class="dc-head"><span class="dc-chip yellow">DEVICE 0</span><h4>The Website (GitHub Pages)</h4></div>
+          <p>Hosts the Teachable Machine AI model and shows the camera feed, the predicted class, and the live confidence percentage as it scans.</p>
+          <ul>
+            <li>Holds a result steady before accepting it, to avoid reacting to a flickering guess</li>
+            <li>Sends the final decision to microbit 1 over a USB Web Serial connection</li>
+          </ul>
+        </div>
+
+        <div class="signal-line">USB SERIAL <span class="arrow">→</span> "BOTTLE" / "CHIPS"</div>
+
+        <div class="device-card fade-up">
+          <div class="dc-head"><span class="dc-chip teal">DEVICE 1</span><h4>microbit + Boson board + GeekServo</h4></div>
+          <p>The main sorting controller. Receives the command, drives the servo to the matching side of the chute, then returns it to centre.</p>
+          <ul>
+            <li>Bottle → moves toward the recycling chute</li>
+            <li>Chips → moves toward the general-rubbish chute</li>
+            <li>One small motor steering a paddle — gravity does the lifting, not the servo</li>
+          </ul>
+        </div>
+
+        <div class="signal-line">MICROBIT RADIO <span class="arrow">→</span> "RECYCLE" / "RUBBISH"</div>
+
+        <div class="device-card fade-up">
+          <div class="dc-head"><span class="dc-chip red">DEVICE 2</span><h4>microbit + Grove Shield + 4-digit display</h4></div>
+          <p>The sustainability dashboard. Every successful sort received over radio adds one to the running total, shown live on the display.</p>
+          <ul>
+            <li>No wired connection to the sorting unit — fully wireless handoff</li>
+            <li>Turns sorting events into a measurable usage record for the school</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="bins-visual fade-up">
+          <svg viewBox="0 0 280 280" width="100%">
+            <text x="140" y="22" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#0F1F2E">SINGLE ENTRY POINT</text>
+            <rect x="100" y="32" width="80" height="26" rx="3" fill="none" stroke="#0F1F2E" stroke-width="2"/>
+            <line x1="140" y1="58" x2="140" y2="78" stroke="#0F1F2E" stroke-width="2"/>
+            <polygon points="80,78 200,78 230,140 50,140" fill="none" stroke="#0F1F2E" stroke-width="2"/>
+            <text x="140" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#0F1F2E" opacity="0.6">sloped chute</text>
+            <line x1="140" y1="140" x2="140" y2="142" stroke="#0F1F2E"/>
+            <g transform="translate(140,142) rotate(-18)">
+              <rect x="-44" y="-3" width="88" height="6" rx="3" fill="#0F1F2E"/>
+            </g>
+            <text x="140" y="166" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#0F1F2E" opacity="0.55">pinball-style paddle</text>
+            <polygon points="50,140 130,140 80,200 25,200" fill="none" stroke="#3F9C8C" stroke-width="2"/>
+            <polygon points="230,140 150,140 200,200 255,200" fill="none" stroke="#C2542E" stroke-width="2"/>
+            <rect x="15" y="200" width="90" height="64" rx="4" fill="#3F9C8C" opacity="0.12" stroke="#3F9C8C" stroke-width="2"/>
+            <text x="60" y="236" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#1f6e60">RECYCLING</text>
+            <rect x="175" y="200" width="90" height="64" rx="4" fill="#C2542E" opacity="0.10" stroke="#C2542E" stroke-width="2"/>
+            <text x="220" y="236" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#8f3a1f">GEN. RUBBISH</text>
+          </svg>
+        </div>
+        <p style="font-size:13px; font-family:var(--mono); color:rgba(15,31,46,0.55); margin-top:14px; line-height:1.6;">One entry point, one sloped chute, one paddle deciding the side. The mechanical layout — schematic, prototype build still in progress with microbits and breadboard wiring.</p>
+
+        <div class="media-placeholder fade-up" style="margin-top:18px;">
+          [ photo / video of physical prototype — add once mechanism is built ]
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INNOVATION / JUDGING-CRITERIA ALIGNED ============ -->
+<section id="innovation" style="background:var(--paper-dim);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Why This Isn't Just a Sign on a Bin</span>
+      <h2 class="h-title">Most "smart bins" stop at a label.<br>This one acts.</h2>
+      <p>A lot of school sustainability projects identify waste and display an instruction. This system is the rarer kind: it makes the decision, executes it mechanically, and logs the outcome — without a person needing to read or trust a label at all.</p>
+    </div>
+
+    <div class="criteria-grid">
+      <div class="crit-card fade-up">
+        <span class="ck">CREATIVITY</span>
+        <h4>A pinball machine, repurposed</h4>
+        <p>The sorting mechanism borrows directly from pinball paddles: gravity moves the object, and a small servo only has to nudge a lightweight divider — not lift or carry the item's full weight.</p>
+      </div>
+      <div class="crit-card fade-up">
+        <span class="ck">AI UNDERSTANDING</span>
+        <h4>Confidence over guesswork</h4>
+        <p>The AI model (Google Teachable Machine) doesn't get to act on a single lucky frame — its prediction must stay above a confidence threshold for a sustained period before the website trusts it enough to move the servo.</p>
+      </div>
+      <div class="crit-card fade-up">
+        <span class="ck">DIFFICULTY</span>
+        <h4>Three systems, two protocols</h4>
+        <p>A browser-based AI model, two microbits, and a servo all have to agree with each other across two different communication protocols — USB Web Serial and microbit radio — to complete one sort.</p>
+      </div>
+      <div class="crit-card fade-up">
+        <span class="ck">IMPACT</span>
+        <h4>Turns one bin into a data point</h4>
+        <p>The four-digit counter means the bin doesn't just sort waste — it produces a usage number a school can actually track over a term, turning a one-off invention into ongoing sustainability data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="future" class="future-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">What's Next</span>
+      <h2 class="h-title">Built to grow past two bins and two items</h2>
+      <p>The current prototype proves the core loop — see, decide, sort, count. These are the next additions already planned for the build.</p>
+    </div>
+
+    <div class="roadmap">
+      <div class="road-card fade-up">
+        <div class="ricon">🚦</div>
+        <h5>RGB status strip</h5>
+        <p>Blue for ready, yellow while scanning, green for recycling, red for rubbish, flashing red for a full bin or error.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+      <div class="road-card fade-up">
+        <div class="ricon">📏</div>
+        <h5>Bin-fullness sensor</h5>
+        <p>An ultrasonic sensor over each compartment warns staff before a bin overflows, instead of relying on manual checks.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+      <div class="road-card fade-up">
+        <div class="ricon">🔊</div>
+        <h5>Audio feedback</h5>
+        <p>A speaker confirms each sort out loud, useful for younger students or anyone who isn't looking at the screen.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+      <div class="road-card fade-up">
+        <div class="ricon">🛠️</div>
+        <h5>Manual correction button</h5>
+        <p>Lets a user override a misclassification on the spot rather than the wrong item ending up in the wrong bin.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+      <div class="road-card fade-up">
+        <div class="ricon">💤</div>
+        <h5>Motion-based energy saving</h5>
+        <p>A motion sensor lets the system power down components when no one is nearby.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+      <div class="road-card fade-up">
+        <div class="ricon">📊</div>
+        <h5>Stats dashboard</h5>
+        <p>The website grows from a live classifier into a page showing recycling trends over time.</p>
+        <span class="rstatus planned">Planned</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECH STACK ============ -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Built With</span>
+      <h2 class="h-title">The toolkit behind it</h2>
+    </div>
+    <div class="stack-row">
+      <span class="stack-tag">Google Teachable Machine</span>
+      <span class="stack-tag">Camera-based image classification</span>
+      <span class="stack-tag">GitHub Pages hosting</span>
+      <span class="stack-tag">Web Serial API</span>
+      <span class="stack-tag">microbit (×2)</span>
+      <span class="stack-tag">Boson expansion board</span>
+      <span class="stack-tag">GeekServo 9G servo</span>
+      <span class="stack-tag">Grove Shield</span>
+      <span class="stack-tag">microbit radio protocol</span>
+      <span class="stack-tag">4-digit display</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">SMART SORT // AI Waste Sorting &amp; Monitoring System</div>
+    <div class="foot-note">Submitted for Young ICT Explorers Australia — Sustainability category. Prototype build in progress; physical mechanism photos and 3D model renders to be added.</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.fade-up');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el => obs.observe(el));
+
+  // Demo logic
+  let totalCount = 0;
+  let recycleCount = 0;
+  let rubbishCount = 0;
+  let demoRunning = false;
+
+  function setLines(lines){
+    const readout = document.getElementById('readout');
+    readout.innerHTML = '';
+    lines.forEach((text, i) => {
+      const div = document.createElement('div');
+      div.className = 'ln';
+      div.innerHTML = text;
+      readout.appendChild(div);
+      setTimeout(() => div.classList.add('show'), i * 420 + 60);
+    });
+  }
+
+  function runDemo(item){
+    if(demoRunning) return;
+    demoRunning = true;
+    document.getElementById('btn-bottle').disabled = true;
+    document.getElementById('btn-chips').disabled = true;
+
+    const isBottle = item === 'BOTTLE';
+    const emoji = isBottle ? '🧴' : '🥡';
+    const label = isBottle ? 'plastic bottle' : 'chip packet';
+    const bin = isBottle ? 'RECYCLE' : 'RUBBISH';
+    const angle = isBottle ? -22 : 22;
+
+    document.getElementById('fall-emoji').textContent = emoji;
+
+    setLines([
+      `&gt; object detected in scan zone`,
+      `&gt; <span class="tag">AI:</span> analysing frame...`,
+      `&gt; <span class="tag">AI:</span> ${label} (confidence climbing...)`,
+      `&gt; <span class="tag">AI:</span> confidence held above threshold ✓`,
+      `&gt; <span class="tag">SERIAL→MB1:</span> "${item}"`,
+      `&gt; <span class="tag">MB1:</span> servo moving to ${isBottle ? 'recycling' : 'rubbish'} side`,
+      `&gt; <span class="tag">RADIO→MB2:</span> "${bin}"`,
+      `&gt; <span class="tag">MB2:</span> counter +1<span class="cursor"></span>`
+    ]);
+
+    const fallItem = document.getElementById('fall-item');
+    const paddle = document.getElementById('paddle');
+
+    fallItem.setAttribute('opacity','0');
+    fallItem.setAttribute('transform','translate(160,40)');
+    paddle.setAttribute('transform','translate(160,92) rotate(0)');
+
+    // sequence timings
+    setTimeout(() => { fallItem.setAttribute('opacity','1'); }, 250);
+    setTimeout(() => {
+      fallItem.style.transition = 'transform 0.8s ease-in';
+      fallItem.setAttribute('transform','translate(160,90)');
+    }, 700);
+    setTimeout(() => {
+      paddle.style.transition = 'transform 0.4s ease';
+      paddle.setAttribute('transform', `translate(160,92) rotate(${angle})`);
+    }, 1550);
+    setTimeout(() => {
+      const destX = isBottle ? 65 : 255;
+      fallItem.style.transition = 'transform 0.7s ease-in, opacity 0.3s ease 0.5s';
+      fallItem.setAttribute('transform', `translate(${destX},195) scale(0.6)`);
+      fallItem.setAttribute('opacity','0');
+    }, 2000);
+    setTimeout(() => {
+      paddle.style.transition = 'transform 0.4s ease';
+      paddle.setAttribute('transform','translate(160,92) rotate(0)');
+    }, 2750);
+    setTimeout(() => {
+      totalCount++;
+      if(isBottle){ recycleCount++; document.getElementById('count-recycle').textContent = recycleCount; }
+      else { rubbishCount++; document.getElementById('count-rubbish').textContent = rubbishCount; }
+      document.getElementById('total-counter').textContent = String(totalCount).padStart(4,'0');
+    }, 2700);
+    setTimeout(() => {
+      demoRunning = false;
+      document.getElementById('btn-bottle').disabled = false;
+      document.getElementById('btn-chips').disabled = false;
+    }, 3300);
+  }
+</script>
+
+</body>
+</html>
